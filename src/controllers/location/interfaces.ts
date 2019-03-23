@@ -16,6 +16,20 @@ export interface LocationUpdateRequest {
   male?: number;
 }
 
+export interface LocationGetRequest {
+  id?: string;
+}
+
+export interface LocationGetResponse {
+  id: string;
+  name: string;
+  totalPopulation: number;
+  summary: {
+    male: number;
+    female: number;
+  };
+}
+
 export interface LocationResponseSchema {
   id: string;
   name: string;

@@ -1,6 +1,11 @@
 import dotenv from 'dotenv';
 
-import { deleteLocationHandler, getHello, postHello, updateLocationHandler } from './handers/hello-world';
+import {
+  deleteLocationHandler,
+  getLocationHandler,
+  postLocationHandler,
+  updateLocationHandler,
+} from './handers/location';
 
 dotenv.config();
 
@@ -10,12 +15,12 @@ export default [
   {
     path: `${BASE_URL}/`,
     method: 'get',
-    handler: getHello,
+    handler: getLocationHandler,
   },
   {
     path: `${BASE_URL}/`,
     method: 'post',
-    handler: postHello,
+    handler: postLocationHandler,
   },
   {
     path: `${BASE_URL}/`,

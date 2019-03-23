@@ -1,6 +1,4 @@
 import * as mongoose from 'mongoose';
-import { CascadeDeleteSpec } from 'src/controllers/location/interfaces';
-import { cascadeDelete } from 'src/controllers/location';
 
 const Schema = mongoose.Schema;
 

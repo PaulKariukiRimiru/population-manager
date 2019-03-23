@@ -1,20 +1,29 @@
 import { Request, Response } from 'express';
 
-import { addLocation, deleteLocation, updateLocation } from 'src/controllers/location';
+import { addLocation, deleteLocation, getLocation, updateLocation } from 'src/controllers/location';
 import { ResponseBody, ResponseStatus } from 'src/modules/interfaces';
 
-export const getHello = async (req: Request, res: Response) => {
-  const response: ResponseBody = {
-    status: ResponseStatus.success,
-    data: {
-      message: 'hello you',
-    },
-  };
+export const getLocationHandler = async (req: Request, res: Response) => {
+  const result = await getLocation(req.query);
 
-  res.send(response);
+  if (result.isRight()) {
+    const response: ResponseBody = {
+      status: ResponseStatus.success,
+      data: result.value,
+    };
+
+    res.json(response);
+  } else {
+    const response: ResponseBody = {
+      status: ResponseStatus.failed,
+      data: result.value,
+    };
+
+    res.send(response);
+  }
 };
 
-export const postHello = async (req: Request, res: Response) => {
+export const postLocationHandler = async (req: Request, res: Response) => {
   const result = await addLocation(req.body);
 
   if (result.isRight()) {

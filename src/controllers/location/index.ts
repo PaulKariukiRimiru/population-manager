@@ -7,6 +7,8 @@ import {
   CascadeDeleteSpec,
   CascadePopulationUpdateSpec,
   LocationDeleteRequest,
+  LocationGetRequest,
+  LocationGetResponse,
   LocationPostRequest,
   LocationUpdateRequest,
   ModificationOperator,
@@ -116,6 +118,43 @@ export const updateLocation = async (updates: LocationUpdateRequest) => {
       message: err,
     }),
   );
+};
+
+export const getLocation = async ({ id }: LocationGetRequest) => {
+  const Location = getLocationModel();
+  if (id) {
+    return Location.findById(id)
+      .then((loc: any | null) => {
+        if (loc) {
+          const location: LocationGetResponse = {
+            id: loc._id,
+            name: loc.name,
+            totalPopulation: loc.male + loc.female,
+            summary: {
+              male: loc.male,
+              female: loc.female,
+            },
+          };
+          return right(location);
+        }
+        return left('Location not found');
+      })
+    .catch((err) => left(err.message));
+  }
+
+  return Location.find()
+    .then((locs) => {
+      return right(locs.map((loc: any) => ({
+        id: loc._id,
+        name: loc.name,
+        totalPopulation: loc.male + loc.female,
+        summary: {
+          male: loc.male,
+          female: loc.female,
+        },
+      })));
+    })
+    .catch((err) => left(err.message));
 };
 
 export const cascadeDelete = async ({ id, parentId, male, female}: CascadeDeleteSpec) => {

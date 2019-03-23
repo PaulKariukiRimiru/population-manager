@@ -3,7 +3,7 @@ import { Express } from 'express';
 import { Server } from 'http';
 import request from 'supertest';
 
-import { getHello } from 'src/modules/hello/handers/hello-world';
+import { getLocationHandler } from 'src/modules/hello/handers/location';
 import { ResponseStatus } from 'src/modules/interfaces';
 import { initServer } from 'src/server';
 
@@ -16,7 +16,7 @@ describe('Hello world', () => {
     const resp: any = mockResponse();
     const req: any = mockRequest();
 
-    await getHello(req, resp);
+    await getLocationHandler(req, resp);
 
     expect(resp.send).toHaveBeenCalledWith({
       status: ResponseStatus.success,
