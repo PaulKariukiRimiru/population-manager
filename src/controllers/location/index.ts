@@ -1,23 +1,36 @@
-import { Either, left, right } from 'fp-ts/lib/Either';
+import { left, right } from 'fp-ts/lib/Either';
 import * as mongoose from 'mongoose';
+
 import { LocationSchema } from 'src/models/Location';
 
-import { CascadeDeleteSpec, CascadePopulationUpdateSpec, LocationRequest, ModificationOperator } from './interfaces';
+import {
+  CascadeDeleteSpec,
+  CascadePopulationUpdateSpec,
+  LocationDeleteRequest,
+  LocationPostRequest,
+  LocationUpdateRequest,
+  ModificationOperator,
+} from './interfaces';
 
 const getLocationModel = () => mongoose.model('Location', LocationSchema);
 
-export const addLocation = async (locationDetails: LocationRequest) => {
+export const addLocation = async (locationDetails: LocationPostRequest) => {
   const Location = getLocationModel();
   const newLocation = new Location(locationDetails);
 
-  return await newLocation.save()
+  return await Location.create(newLocation)
     .then(async (location) => {
       if (locationDetails.parentLocation) {
         await cascadePopulationUpdate({
           locationId: locationDetails.parentLocation,
-          male: locationDetails.male,
-          female: locationDetails.female,
-          operation: ModificationOperator.add,
+          male: {
+            count: locationDetails.male,
+            operation: ModificationOperator.add,
+          },
+          female: {
+            count: locationDetails.female,
+            operation: ModificationOperator.add,
+          },
         });
       }
       return right(location);
@@ -25,7 +38,7 @@ export const addLocation = async (locationDetails: LocationRequest) => {
     .catch((err) => left(err));
 };
 
-export const deleteLocation = async (id: string) => {
+export const deleteLocation = async ({ id }: LocationDeleteRequest) => {
   const Location = getLocationModel();
 
   return Location.findByIdAndDelete(id)
@@ -50,6 +63,59 @@ export const deleteLocation = async (id: string) => {
   .catch((err) => left({
     message: err,
   }));
+};
+
+export const updateLocation = async (updates: LocationUpdateRequest) => {
+  const Location = getLocationModel();
+  return Location.findById(updates.id)
+    .then(async (loc: any | null) => {
+      if (loc) {
+        const updateMales = updates.male ? updates.male : 0;
+        const updateFemales = updates.female ? updates.female : 0;
+
+        const maleOperation = loc.male < updateMales ? ModificationOperator.add : ModificationOperator.minus;
+        const femaleOperation = loc.female < updateFemales ? ModificationOperator.add : ModificationOperator.minus;
+
+        const maleCount = maleOperation === ModificationOperator.add
+          ? updateMales - loc.male
+          : loc.male - updateMales;
+
+        const femaleCount = femaleOperation === ModificationOperator.add
+          ? updateFemales - loc.female
+          : loc.female - updateFemales;
+
+        Object.assign(loc, updates);
+        loc.save();
+
+        if (updates.male || updates.female) {
+
+          await cascadePopulationUpdate({
+            locationId: loc.parentLocation,
+            male: {
+              count: maleCount,
+              operation: maleOperation,
+            },
+            female: {
+              count: femaleCount,
+              operation: femaleOperation,
+            },
+          });
+        }
+
+        return right({
+          message: 'location updated',
+          data: loc,
+        });
+      }
+
+      return left({
+        message: 'could not find the location',
+      });
+    })
+    .catch((err) => left({
+      message: err,
+    }),
+  );
 };
 
 export const cascadeDelete = async ({ id, parentId, male, female}: CascadeDeleteSpec) => {
@@ -86,9 +152,14 @@ export const cascadeDelete = async ({ id, parentId, male, female}: CascadeDelete
 
   await cascadePopulationUpdate({
     locationId: parentId,
-    male,
-    female,
-    operation: ModificationOperator.minus,
+    male: {
+      count: male,
+      operation: ModificationOperator.minus,
+    },
+    female: {
+      count: female,
+      operation: ModificationOperator.minus,
+    },
   });
 };
 
@@ -96,28 +167,29 @@ export const cascadePopulationUpdate = async ({
   locationId,
   male,
   female,
-  operation,
 }: CascadePopulationUpdateSpec) => {
   const locationModel = getLocationModel();
-  locationModel.findById(locationId, async (err, loc: any | null) => {
-    if (loc) {
-      if (operation === ModificationOperator.add) {
-        loc.male += male;
-        loc.female += female;
-      } else {
-        loc.male -= male;
-        loc.female -= female;
-      }
-      loc.save();
+  locationModel.findById(locationId)
+    .then(async (loc: any | null) => {
+      if (loc) {
+        loc.male = male.operation === ModificationOperator.add
+          ? loc.male + male.count
+          : loc.male - male.count;
 
-      if (loc.parentLocation) {
-        await cascadePopulationUpdate({
-          locationId: loc.parentLocation,
-          male,
-          female,
-          operation,
-        });
+        loc.female = female.operation === ModificationOperator.add
+          ? loc.female + female.count
+          : loc.female - female.count;
+        loc.save();
+
+        if (loc.parentLocation) {
+          await cascadePopulationUpdate({
+            locationId: loc.parentLocation,
+            male,
+            female,
+          });
+        }
+        return right('cascade complete');
       }
-    }
-  });
+    })
+    .catch((err) => left('error found'));
 };

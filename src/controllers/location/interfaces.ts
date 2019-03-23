@@ -1,8 +1,19 @@
-export interface LocationRequest {
+export interface LocationPostRequest {
   name: string;
   female: number;
   male: number;
   parentLocation?: string;
+}
+
+export interface LocationDeleteRequest {
+  id: string;
+}
+
+export interface LocationUpdateRequest {
+  id: string;
+  name?: string;
+  female?: number;
+  male?: number;
 }
 
 export interface LocationResponseSchema {
@@ -11,10 +22,15 @@ export interface LocationResponseSchema {
 }
 
 export interface CascadePopulationUpdateSpec {
-  male: number;
-  female: number;
+  male: {
+    count: number,
+    operation: ModificationOperator,
+  };
+  female: {
+    count: number,
+    operation: ModificationOperator,
+  };
   locationId: string;
-  operation: ModificationOperator;
 }
 
 export interface CascadeDeleteSpec {
