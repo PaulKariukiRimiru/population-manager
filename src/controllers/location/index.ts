@@ -20,6 +20,21 @@ export const addLocation = async (locationDetails: LocationPostRequest) => {
   const Location = getLocationModel();
   const newLocation = new Location(locationDetails);
 
+  if (locationDetails.parentLocation) {
+    const result = await Location.findById(locationDetails.parentLocation)
+      .then((loc: any | null) => {
+        if (loc) {
+          right(loc);
+        }
+        return left('not found');
+      })
+      .catch((err) => left(err));
+
+    if (result.isLeft()) {
+      return left('provide a valid parent location id');
+    }
+  }
+
   return await Location.create(newLocation)
     .then(async (location) => {
       if (locationDetails.parentLocation) {

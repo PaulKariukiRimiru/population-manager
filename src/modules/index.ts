@@ -1,4 +1,4 @@
-import helloRoutes from './hello/routes';
+import helloRoutes from './location/routes';
 
 const routes = [helloRoutes];
 

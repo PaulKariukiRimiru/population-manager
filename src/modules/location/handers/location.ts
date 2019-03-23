@@ -19,7 +19,7 @@ export const getLocationHandler = async (req: Request, res: Response) => {
       data: result.value,
     };
 
-    res.send(response);
+    res.status(400).send(response);
   }
 };
 
@@ -39,7 +39,7 @@ export const postLocationHandler = async (req: Request, res: Response) => {
       data: result.value,
     };
 
-    res.send(response);
+    res.status(400).send(response);
   }
 };
 
@@ -59,7 +59,7 @@ export const deleteLocationHandler = async (req: Request, res: Response) => {
       data: result.value,
     };
 
-    res.send(response);
+    res.status(400).send(response);
   }
 };
 
@@ -79,6 +79,6 @@ export const updateLocationHandler = async (req: Request, res: Response) => {
       data: result.value,
     };
 
-    res.send(response);
+    res.status(400).send(response);
   }
 };

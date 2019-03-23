@@ -1,11 +1,7 @@
 import dotenv from 'dotenv';
-import { Express } from 'express';
-import { Server } from 'http';
-import request from 'supertest';
 
-import { getLocationHandler } from 'src/modules/hello/handers/location';
 import { ResponseStatus } from 'src/modules/interfaces';
-import { initServer } from 'src/server';
+import { getLocationHandler } from 'src/modules/location/handers/location';
 
 import { mockRequest, mockResponse } from '../utils';
 
