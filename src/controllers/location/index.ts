@@ -24,7 +24,7 @@ export const addLocation = async (locationDetails: LocationPostRequest) => {
     const result = await Location.findById(locationDetails.parentLocation)
       .then((loc: any | null) => {
         if (loc) {
-          right(loc);
+          return right(loc);
         }
         return left('not found');
       })

@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 export const LocationSchema = new Schema({
   name: {
     type: String,
-    match: [/^[a-zA-Z]/, "provide a valid string"],
+    match: [/^[a-zA-Z]/, 'provide a valid string'],
     unique: 'Location names must be unique',
     required: 'Provide a name for the location',
   },
@@ -22,7 +22,7 @@ export const LocationSchema = new Schema({
   },
   parentLocation: {
     type: String,
-  }
+  },
 });
 
 LocationSchema.plugin(uniqueValidator);
