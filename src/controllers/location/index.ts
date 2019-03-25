@@ -24,7 +24,7 @@ export const addLocation = async (locationDetails: LocationPostRequest) => {
     const result = await Location.findById(locationDetails.parentLocation)
       .then((loc: any | null) => {
         if (loc) {
-          right(loc);
+          return right(loc);
         }
         return left('not found');
       })
@@ -38,7 +38,7 @@ export const addLocation = async (locationDetails: LocationPostRequest) => {
   return await Location.create(newLocation)
     .then(async (location) => {
       if (locationDetails.parentLocation) {
-        await cascadePopulationUpdate({
+        const result = await cascadePopulationUpdate({
           locationId: locationDetails.parentLocation,
           male: {
             count: locationDetails.male,
@@ -49,7 +49,10 @@ export const addLocation = async (locationDetails: LocationPostRequest) => {
             operation: ModificationOperator.add,
           },
         });
+
+        return result.isRight() ? right(location) : left(result.value);
       }
+
       return right(location);
     })
     .catch((err) => left(err));
@@ -135,10 +138,10 @@ export const updateLocation = async (updates: LocationUpdateRequest) => {
   );
 };
 
-export const getLocation = async ({ id }: LocationGetRequest) => {
+export const getLocation = async ({ name }: LocationGetRequest) => {
   const Location = getLocationModel();
-  if (id) {
-    return Location.findById(id)
+  if (name) {
+    return Location.findOne({ name })
       .then((loc: any | null) => {
         if (loc) {
           const location: LocationGetResponse = {
@@ -223,7 +226,7 @@ export const cascadePopulationUpdate = async ({
   female,
 }: CascadePopulationUpdateSpec) => {
   const locationModel = getLocationModel();
-  locationModel.findById(locationId)
+  return locationModel.findById(locationId)
     .then(async (loc: any | null) => {
       if (loc) {
         loc.male = male.operation === ModificationOperator.add
@@ -244,6 +247,8 @@ export const cascadePopulationUpdate = async ({
         }
         return right('cascade complete');
       }
+
+      return left('parent not found');
     })
     .catch((err) => left('error found'));
 };
