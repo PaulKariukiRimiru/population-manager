@@ -7,11 +7,11 @@
     "postinstall": "tsc",
     "start": "pm2 start pm2.yaml",
     "stop": "pm2 stop pm2.yaml",
-    "start:dev": "ts-node --files -T --project ./tsconfig.json -r tsconfig-paths/register -r dotenv/config src/server.ts",
+    "start:dev": "yarn run base:start src/server.ts",
     "start:dev:watch": "NODE_ENV=development nodemon",
-    "pretest": "NODE_ENV=test ts-node --files -T --project ./tsconfig.json -r tsconfig-paths/register -r dotenv/config src/seeders/location.ts",
-    "posttest": "NODE_ENV=test ts-node --files -T --project ./tsconfig.json -r tsconfig-paths/register -r dotenv/config src/seeders/teardown.ts",
-    "test": "NODE_ENV=test mocha --require tsconfig-paths/register --require ts-node/register \"./src/**/*.spec.ts\" --watch-extensions ts --exit",
+    "base:test": "NODE_ENV=test nyc --reporter=text mocha --require tsconfig-paths/register --require ts-node/register",
+    "base:start": "ts-node --files -T --project ./tsconfig.json -r tsconfig-paths/register -r dotenv/config",
+    "test": "yarn run base:test \"./src/**/*.spec.ts\" --watch-extensions ts --exit",
     "lint": "tslint --project . --fix",
     "build": "tsc"
   },
@@ -70,5 +70,16 @@
     "sequelize-typescript": "^0.6.8",
     "ts-node-dev": "^1.0.0-pre.32",
     "tsconfig-paths": "^3.8.0"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "src/**/*.spec.ts",
+      "src/setup.ts",
+      "src/seeders/",
+      "src/server.ts"
+    ]
   }
 }

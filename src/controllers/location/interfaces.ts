@@ -17,7 +17,7 @@ export interface LocationUpdateRequest {
 }
 
 export interface LocationGetRequest {
-  id?: string;
+  name?: string;
 }
 
 export interface LocationGetResponse {
