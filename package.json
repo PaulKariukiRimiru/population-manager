@@ -1,7 +1,6 @@
 {
-  "name": "school-api",
+  "name": "population-manager",
   "version": "1.0.0",
-  "description": "small api for a school management system",
   "main": "index.js",
   "scripts": {
     "postinstall": "tsc",
