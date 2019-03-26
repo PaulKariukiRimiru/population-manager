@@ -14,16 +14,8 @@
     "lint": "tslint --project . --fix",
     "build": "tsc"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/PaulKariukiRimiru/school-api.git"
-  },
   "author": "Paul Rimiru",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/PaulKariukiRimiru/school-api/issues"
-  },
-  "homepage": "https://github.com/PaulKariukiRimiru/school-api#readme",
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/compression": "^0.0.36",
