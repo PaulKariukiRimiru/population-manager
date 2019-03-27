@@ -4,6 +4,10 @@
 
 This application can be used to manage population in different locations
 
+### Application Documentation
+
+You can try out the application [here](https://my-population-manager.herokuapp.com/api-docs/)
+
 ## Getting Started
 
 To start development
