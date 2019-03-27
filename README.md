@@ -23,7 +23,7 @@ To start development
 
 <b>To run the app locally</b><br>
 
-    * Run the application using - 'yarn start:dev:watch'
+    * Run the application using - 'yarn start:dev'
 
     * Access app through http://localhost:3000/
 

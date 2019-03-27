@@ -44,7 +44,7 @@ export const postLocationHandler = async (req: Request, res: Response) => {
 };
 
 export const deleteLocationHandler = async (req: Request, res: Response) => {
-  const result = await deleteLocation(req.body);
+  const result = await deleteLocation(req.query);
 
   if (result.isRight()) {
     const response: ResponseBody = {
@@ -64,8 +64,7 @@ export const deleteLocationHandler = async (req: Request, res: Response) => {
 };
 
 export const updateLocationHandler = async (req: Request, res: Response) => {
-  const result = await updateLocation(req.body);
-
+  const result = await updateLocation({ ...req.body, id: req.query.id });
   if (result.isRight()) {
     const response: ResponseBody = {
       status: ResponseStatus.success,
