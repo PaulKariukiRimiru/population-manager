@@ -9,9 +9,10 @@ import { initServer } from 'src/server';
 
 describe('Location', () => {
   const app  = initServer().app;
+  let locationIds: string[] = [];
 
   before(async () => {
-    await seedData();
+    locationIds = await seedData();
   });
 
   after(async () => {
@@ -19,10 +20,10 @@ describe('Location', () => {
   });
 
   describe('GET endpoint', () => {
-    it('/api/v1/ gets all locations', () => {
+    it('/api/v1/location/ gets all locations', () => {
 
       return request(app)
-        .get('/api/v1/')
+        .get('/api/v1/location/')
         .expect(200)
         .then((response) => {
           assert.equal(response.body.status, 'success');
@@ -30,11 +31,11 @@ describe('Location', () => {
       });
     });
 
-    it('/api/v1/?<name> gets single location', () => {
+    it('/api/v1/location/?<name> gets single location', () => {
       const name = 'kiambu';
 
       return request(app)
-        .get('/api/v1/')
+        .get('/api/v1/location/')
         .query({ name })
         .expect(200)
         .then((response) => {
@@ -43,10 +44,10 @@ describe('Location', () => {
       });
     });
 
-    it('/api/v1/?<name> gets single location fails for invalid name', () => {
+    it('/api/v1/location/?<name> gets single location fails for invalid name', () => {
 
       return request(app)
-        .get('/api/v1/')
+        .get('/api/v1/location/')
         .query({ name: 'something random' })
         .expect(400)
         .then((response) => {
@@ -65,7 +66,7 @@ describe('Location', () => {
       originLocation = (await getLocation({ name })).value;
     });
 
-    it('/api/v1/ creates a location', () => {
+    it('/api/v1/location/ creates a location', () => {
       const sampleLocation = {
         name: 'test location',
         female: 0,
@@ -73,7 +74,7 @@ describe('Location', () => {
       };
 
       return request(app)
-        .post('/api/v1/')
+        .post('/api/v1/location/')
         .send(sampleLocation)
         .set('Accept', 'application/json')
         .expect(200)
@@ -83,7 +84,7 @@ describe('Location', () => {
         });
     });
 
-    it('/api/v1/ creates a sub-location when parentLocation field is passed', () => {
+    it('/api/v1/location/ creates a sub-location when parentLocation field is passed', () => {
       const sampleLocation = {
         name: 'test location2',
         female: 4,
@@ -92,7 +93,7 @@ describe('Location', () => {
       };
 
       return request(app)
-        .post('/api/v1/')
+        .post('/api/v1/location/')
         .send(sampleLocation)
         .set('Accept', 'application/json')
         .expect(200)
@@ -102,7 +103,7 @@ describe('Location', () => {
         });
     });
 
-    it('/api/v1/ does not create location with invalid name', () => {
+    it('/api/v1/location/ does not create location with invalid name', () => {
       const location = {
         name: 42,
         female: 2,
@@ -110,7 +111,7 @@ describe('Location', () => {
       };
 
       return request(app)
-        .put('/api/v1/')
+        .put('/api/v1/location/')
         .send(location)
         .set('Accept', 'application/json')
         .expect(400)
@@ -119,7 +120,7 @@ describe('Location', () => {
         });
     });
 
-    it('/api/v1/ does not create location with invalid population field values', () => {
+    it('/api/v1/location/ does not create location with invalid population field values', () => {
       const location = {
         name: 'ruiru',
         female: 'something not a number',
@@ -127,7 +128,7 @@ describe('Location', () => {
       };
 
       return request(app)
-        .put('/api/v1/')
+        .put('/api/v1/location/')
         .send(location)
         .set('Accept', 'application/json')
         .expect(400)
@@ -136,13 +137,13 @@ describe('Location', () => {
         });
     });
 
-    it('/api/v1/ does not create location without population field values', () => {
+    it('/api/v1/location/ does not create location without population field values', () => {
       const location = {
         name: 'ruiru',
       };
 
       return request(app)
-        .put('/api/v1/')
+        .put('/api/v1/location/')
         .send(location)
         .set('Accept', 'application/json')
         .expect(400)
@@ -161,31 +162,28 @@ describe('Location', () => {
       originLocation = (await getLocation({ name })).value;
     });
 
-    it('/api/v1/ updates a location name', () => {
+    it('/api/v1/location/ updates a location name', () => {
       const update = {
-        id: originLocation.id,
         name: 'test location modified',
       };
-
+      const id = locationIds[0];
       return request(app)
-        .put('/api/v1/')
+        .put(`/api/v1/location/?id=${id}`)
         .send(update)
-        .set('Accept', 'application/json')
         .expect(200)
         .then((response) => {
           assert.equal(response.body.status, 'success');
         });
     });
 
-    it('/api/v1/ updates a location population', () => {
+    it('/api/v1/location/ updates a location population', () => {
       const update = {
-        id: originLocation.id,
         female: 2,
         male: 3,
       };
 
       return request(app)
-        .put('/api/v1/')
+        .put(`/api/v1/location/?id=${originLocation.id}`)
         .send(update)
         .set('Accept', 'application/json')
         .expect(200)
@@ -194,14 +192,14 @@ describe('Location', () => {
         });
     });
 
-    it('/api/v1/ does not update a non existent location', () => {
+    it('/api/v1/location/ does not update a non existent location', () => {
       const update = {
         id: 'some odd stuff',
         female: 2,
       };
 
       return request(app)
-        .put('/api/v1/')
+        .put('/api/v1/location/')
         .send(update)
         .set('Accept', 'application/json')
         .expect(400)
@@ -212,39 +210,21 @@ describe('Location', () => {
   });
 
   describe('DELETE endpoint', () => {
-    const name = 'test location2';
 
-    let originLocation: any;
-
-    before(async () => {
-      originLocation = (await getLocation({ name })).value;
-    });
-
-    it('/api/v1/ deletes a location', () => {
-      const details = {
-        id: originLocation.id,
-      };
+    it('/api/v1/location/ deletes a location', () => {
 
       return request(app)
-        .delete('/api/v1/')
-        .send(details)
-        .set('Accept', 'application/json')
+        .delete(`/api/v1/location/?id=${locationIds[0]}`)
         .expect(200)
         .then((response) => {
           assert.equal(response.body.status, 'success');
         });
     });
 
-    it('/api/v1/ does not delete a non existent location', () => {
-      const update = {
-        id: 'some odd stuff',
-        female: 2,
-      };
+    it('/api/v1/location/ does not delete a non existent location', () => {
 
       return request(app)
-        .delete('/api/v1/')
-        .send(update)
-        .set('Accept', 'application/json')
+        .delete('/api/v1/location/?id=some odd stuff')
         .expect(400)
         .then(async (response) => {
           assert.equal(response.body.status, 'failed');

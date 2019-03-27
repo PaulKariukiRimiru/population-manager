@@ -22,12 +22,13 @@ export const seedData = async () => {
   const results = await Promise.all(
     locationData.map(async (location) => await addLocation(location)),
   );
-
+  const locationIds: string[] = [];
   if (results.every((trans) => trans.isRight())) {
     await locationModel.find()
       .then(async (locs) => {
         return await Promise.all(
           locs.map(async (loc: any) => {
+            locationIds.push(loc._id);
             return await addLocation({
               name: 'sub-' + loc.name,
               female: 0,
@@ -39,4 +40,6 @@ export const seedData = async () => {
       })
       .catch((err) => err.message);
   }
+
+  return locationIds;
 };

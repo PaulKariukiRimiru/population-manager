@@ -3,9 +3,9 @@
   "info": {
     "version": "1.0.0"
   },
-  "host": "localhost:3000",
+  "host": "my-population-manager.herokuapp.com",
   "basePath": "/api/v1",
-  "schemes": ["http"],
+  "schemes": ["https"],
   "produces": ["application/json"],
   "paths": {
     "/location": {
@@ -107,7 +107,7 @@
         ],
         "summary": "Fetch all locations or a single location by name",
         "description": "Provide name for an existing Location or leave it blank to fetch all Locations",
-        "operationId": "findLocationByName",
+        "operationId": "findLocationById",
         "produces": [
           "application/json"
         ],
@@ -140,7 +140,7 @@
         "tags": [
           "Location"
         ],
-        "summary": "Delete a Location",
+        "summary": "Deletes a Location",
         "description": "",
         "operationId": "deleteLocation",
         "produces": [
